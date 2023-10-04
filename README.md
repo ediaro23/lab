@@ -1,4 +1,4 @@
-# Advanced Robotics (INFR112132022) tutorials
+# Advanced Robotics (INFR112132022) software labs
 
 These instructions are written for ARO labs regarding set up on DICE environment.
 
