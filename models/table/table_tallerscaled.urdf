@@ -1,0 +1,53 @@
+<?xml version="0.0" ?>
+<robot name="table_tallerscaled.urdf">
+  <link name="baseLink">
+    <contact>
+      <lateral_friction value="1.0"/>
+    </contact>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value=".0"/>
+       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.84"/>
+      <geometry>
+				<mesh filename="table.obj" scale="2.099 1.4 0.07"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.84"/>
+      <geometry>
+	 	<box size="2.099 1.4 0.07"/>
+      </geometry>
+    </collision>
+	<visual>
+      <origin rpy="0 0 0" xyz="-0.909 -0.56 0.405"/>
+      <geometry>
+	    <mesh filename="table.obj" scale="0.14 0.14 0.812"/>
+      </geometry> 
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.909 0.56 0.405"/>
+      <geometry>
+        <mesh filename="table.obj" scale="0.14 0.14 0.812"/>
+      </geometry>
+	  </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.909 -0.56 0.405"/>
+      <geometry>
+        <mesh filename="table.obj" scale="0.14 0.14 0.812"/>
+      </geometry>
+	  </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.909 0.56 0.405"/>
+      <geometry>
+        <mesh filename="table.obj" scale="0.14 0.14 0.812"/>
+      </geometry>
+    </visual>
+  </link>
+</robot>
+
