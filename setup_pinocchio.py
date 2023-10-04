@@ -60,13 +60,11 @@ def finalisecollisionsetup(robot):
         
 def addcubecollision(cube, obstacle):
     for obs in obstacle.collision_model.geometryObjects:
-        print("adding")
         cube.collision_model.addGeometryObject(obs)  # Add object to collision model
     
 def finalisecubecollisionsetup(cube):
     cube.collision_model.addAllCollisionPairs()   
     cube.collision_model.addCollisionPair(pin.CollisionPair(0,1))
-    #cube.collision_model.addCollisionPair(pin.CollisionPair(0,2))
     cube.collision_data = cube.collision_model.createData()
     
 

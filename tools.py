@@ -39,7 +39,17 @@ def distanceToObstacle(robot, q):
       dists = [pin.computeDistance(robot.collision_model, robot.collision_data, idx).min_distance for idx in pairs]  
       return min(dists)
 
-    
+
+def collisionDistance(robot, cube, position):
+     '''Return the minimal distance between cube and environment. '''
+     oMcurrent = getcubeplacement(cube)
+     oMf = pin.SE3(oMcurrent.rotation,position)
+     setcubeplacement(robot, cube, oMf)
+     if pin.computeCollisions(cube.collision_model,cube.collision_data,False):
+         return +0.00001
+     idx = pin.computeDistances(cube.collision_model,cube.collision_data)
+     return -cube.collision_data.distanceResults[idx].min_distance +0.00001
+
 def getcubeplacement(cube, hookname = None):
     '''gets the cube placement in the world frame. if hookname is provided, returns placement of the hook instead'''
     oMf = cube.collision_model.geometryObjects[0].placement
