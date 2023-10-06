@@ -38,6 +38,22 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```    
 
+- You need to update `.bashrc` to include meshcat-server in PATH. Follow the steps below:
+    - Open .bashrc for Editing
+        ```bash
+        nano ~/.bashrc
+        ```
+    - Add the Following Line to the end of your .bashrc file
+        ```bash
+        export PATH=$PATH:~/.local/bin
+        ```
+    - Save and close by pressing CTRL + O to save, followed by CTRL + X to exit.
+    - Reload `.bashrc` to apply the changes immediately without restarting the terminal
+        ```bash
+        source ~/.bashrc
+        ```
+
+
 You should be done! See [below](#using-and-updating-the-notebooks) to check that your installation is working 
 
 ### Linux, Python 3, PyPI
