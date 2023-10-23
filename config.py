@@ -13,10 +13,12 @@ from pinocchio.utils import rotate
 
 #These parameters can be edited
 USE_MESHCAT = True # part 1 uses meshcat
-USE_PYBULLET = not USE_MESHCAT # the second part of the lab will use pybullet
+USE_PYBULLET = True # the second part of the lab will use pybullet
 MESHCAT_URL ="tcp://127.0.0.1:6000"
+USE_PYBULLET_GUI = USE_PYBULLET and True
+USE_PYBULLET_REALTIME = USE_PYBULLET and False
 
-DT = 1e-2 #simulation tick time (s)
+DT = 1e-3 #simulation tick time (s)
 EPSILON = 1e-3 #almost 0
 
 #the remaining variables should not be edited in theory

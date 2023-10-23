@@ -10,7 +10,6 @@ import pinocchio as pin #the pinocchio library
 import numpy as np
 
 def jointlimitscost(robot,q):
-    '''Return the maximum joint violation of a configuration'''
     up = max(q - robot.model.upperPositionLimit)
     down = max(robot.model.lowerPositionLimit - q)
     return max(0,max(up,down))
@@ -20,13 +19,19 @@ def jointlimitsviolated(robot,q):
     return jointlimitscost(robot,q) > 0.
 
 def projecttojointlimits(robot,q):
-    '''Projects a configuration to the closest one that satisfies joint limits'''
     return np.minimum(np.maximum(robot.model.lowerPositionLimit, q), robot.model.upperPositionLimit)
 
 
 def collision(robot, q):
      '''Return true if in collision, false otherwise.'''
      pin.updateGeometryPlacements(robot.model,robot.data,robot.collision_model,robot.collision_data,q)
+     # if pin.computeCollisions(robot.collision_model,robot.collision_data,False):
+     #     for k in range(len(robot.collision_model.collisionPairs)): 
+     #         cr = robot.collision_data.collisionResults[k]
+     #         cp = robot.collision_model.collisionPairs[k]
+     #         if cr.isCollision():
+     #             print("collision pair:",robot.collision_model.geometryObjects[cp.first].name,",",robot.collision_model.geometryObjects[cp.second].name,"- collision:","Yes" if cr.isCollision() else "No")
+     
      return pin.computeCollisions(robot.collision_model,robot.collision_data,False)
     
 def distanceToObstacle(robot, q):
@@ -36,22 +41,17 @@ def distanceToObstacle(robot, q):
       pairs = [i for i, pair in enumerate(robot.collision_model.collisionPairs) if pair.second == geomidobs or pair.second == geomidtable]
       pin.framesForwardKinematics(robot.model,robot.data,q)
       pin.updateGeometryPlacements(robot.model,robot.data,robot.collision_model,robot.collision_data,q)
-      dists = [pin.computeDistance(robot.collision_model, robot.collision_data, idx).min_distance for idx in pairs]  
+      dists = [pin.computeDistance(robot.collision_model, robot.collision_data, idx).min_distance for idx in pairs]      
+      
+      # pairsId = [pair.first for i, pair in enumerate(robot.collision_model.collisionPairs) if pair.second == geomidobs or pair.second == geomidtable]
+      # names = [robot.collision_model.geometryObjects[idx].name for idx in pairsId ]
+      # for name, dist in zip(names,dists):
+      #     print ("name / distance ", name, " / ", dist)
+      # print(min (dists))
       return min(dists)
 
-
-def collisionDistance(robot, cube, position):
-     '''Return the minimal distance between cube and environment. '''
-     oMcurrent = getcubeplacement(cube)
-     oMf = pin.SE3(oMcurrent.rotation,position)
-     setcubeplacement(robot, cube, oMf)
-     if pin.computeCollisions(cube.collision_model,cube.collision_data,False):
-         return +0.00001
-     idx = pin.computeDistances(cube.collision_model,cube.collision_data)
-     return -cube.collision_data.distanceResults[idx].min_distance +0.00001
-
+    
 def getcubeplacement(cube, hookname = None):
-    '''gets the cube placement in the world frame. if hookname is provided, returns placement of the hook instead'''
     oMf = cube.collision_model.geometryObjects[0].placement
     if hookname is not None:
         frameid = cube.model.getFrameId(hookname)
@@ -60,7 +60,6 @@ def getcubeplacement(cube, hookname = None):
         
 
 def setcubeplacement(robot, cube, oMf):
-    '''sets the cube position to the provided placement in world frame'''
     q = cube.q0
     robot.visual_model.geometryObjects[-1].placement = oMf
     robot.collision_model.geometryObjects[-1].placement = oMf
@@ -68,14 +67,44 @@ def setcubeplacement(robot, cube, oMf):
     cube.collision_model.geometryObjects[0].placement = oMf    
     pin.updateGeometryPlacements(cube.model,cube.data,cube.collision_model,cube.collision_data,q)
     
+
+    
 from setup_pinocchio import setuppinocchio
 from setup_meshcat import setupmeshcat     
 from config import MESHCAT_URL
 
 def setupwithmeshcat(url=MESHCAT_URL):
-     '''setup everything to work with the robot and meshcat'''
+     '''setups everything to work with the robot and meshcat'''
      robot, table, obstacle, cube = setuppinocchio()
-     viz = setupmeshcat(robot, url)
+     viz = setupmeshcat(robot)
      return robot, cube, viz
  
+from setup_pybullet import setuppybullet
+def setupwithpybullet():
+     '''setups everything to work with the robot and pybullet'''
+     robot, table, obstacle, cube = setuppinocchio()   
+     sim = setuppybullet(robot)
+     sim.setTorqueControlMode()
+     return robot, sim, cube
+ 
     
+def setupwithpybulletandmeshcat(url=MESHCAT_URL):
+     '''setups everything to work with the robot, pybullet AND meshcat'''
+     robot, table, obstacle, cube = setuppinocchio() 
+     viz = setupmeshcat(robot)
+     sim = setuppybullet(robot)
+     sim.setTorqueControlMode()
+     return robot, sim, cube, viz
+ 
+
+import time
+   
+def rununtil(f, t, *args, **kwargs):
+    '''starts a timer, runs a function f then waits until t seconds have passed since timer started'''
+    t = time.perf_counter()
+    # Call the provided function f2 with its arguments
+    result = f(*args, **kwargs)
+    t+=0.001
+    while(time.perf_counter()-t<0.001):
+        time.sleep(0.0001) # Weird loop for parallel execution (should not be needed in this project)
+    return result
