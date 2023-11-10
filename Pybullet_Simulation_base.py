@@ -1,17 +1,14 @@
-from scipy.spatial.transform import Rotation as npRotation
-import matplotlib.pyplot as plt
 import numpy as np
-import math
 import re
 import time
-import yaml
+from typing import Any, Tuple, List
 
 
 class Simulation_base:
     """A Bullet simulation involving Nextage robot"""
 
     ########## Class initialiser ##########
-    def __init__(self, pybulletConfigs, robotConfigs):
+    def __init__(self, pybulletConfigs: dict[str, Any], robotConfigs: dict[str, Any]):
         """Creates a simulation instance with Nextage robot
         Keyword Arguments:
             pybulletConfigs (dict) = {
@@ -233,7 +230,9 @@ class Simulation_base:
         print(f'[Simulation] Leaving')
 
     ########## Setting up tools ##########
-    def setFloorFrictions(self, lateral=1, spinning=-1, rolling=-1):
+    def setFloorFrictions(
+        self, lateral: int = 1, spinning: int = -1, rolling: int = -1
+    ):
         """Sets the frictions with the plane object
 
         Keyword Arguments:
@@ -246,7 +245,7 @@ class Simulation_base:
                                   spinningFriction=spinning, rollingFriction=rolling)
 
 
-    def debugCameralookAt(self, target):
+    def debugCameralookAt(self, target: Tuple[float, float, float]):
         """Make the debug camera loot at a point
 
         Arguments:
@@ -257,7 +256,7 @@ class Simulation_base:
             self.p.resetDebugVisualizerCamera(
                 params[10], params[8], params[9], target)
 
-    def changeLinkColor(self, jointName, color):
+    def changeLinkColor(self, jointName: str, color: Tuple[float, float, float, float]):
         """Change a link's color and opacity
 
         Arguments:
@@ -267,14 +266,16 @@ class Simulation_base:
         self.p.changeVisualShape(
             self.robot, self.jointIds[jointName], rgbaColor=color)
 
-    def resetAllLinkColor(self, color=[1, 1, 1, 1]):
+    def resetAllLinkColor(
+        self, color: Tuple[float, float, float, float] = [1, 1, 1, 1]
+    ):
         """Reset all link's color
 
         Keyword Arguments:
             color [4 floats] -- [1,1,1,1] white color by default
         """
         for i in range(self.noJoints):
-            self.p.changeVisualShape(self.robot, i, rgbaColor=[1, 1, 1, 1])
+            self.p.changeVisualShape(self.robot, i, rgbaColor=color)
 
     def initialiseDebugLines(self):
         """Initialise debug lines"""
@@ -284,7 +285,12 @@ class Simulation_base:
         self.lineColors = [[1, 0, 0], [0, 1, 0], [
             0, 0, 1], [1, 1, 0], [1, 0, 1], [0, 1, 1]]
 
-    def addDebugPosition(self, position, color=None, duration=30):
+    def addDebugPosition(
+        self,
+        position: Tuple[float, float, float],
+        color: Tuple[float, float, float] = None,
+        duration: float = 30,
+    ):
         """Adds a debug position to be drawn as a line
 
         Arguments:
@@ -323,7 +329,7 @@ class Simulation_base:
 
             self.lastLinesDraw = time.time()
 
-    def getCameraStatus(self):
+    def getCameraStatus(self) -> Tuple:
         """Returns: tuple -- camera status"""
         return self.p.getDebugVisualizerCamera()
 
@@ -339,8 +345,8 @@ class Simulation_base:
     def closeClient(self):
         """Disconnect the Pybullet Simulator"""
         self.p.disconnect()
-        
-    def autoCollisions(self):
+
+    def autoCollisions(self) -> float:
         """Returns the total amount of N in autocollisions (not with ground)
 
         Returns:
@@ -360,8 +366,7 @@ class Simulation_base:
             for j in range(-1, self.noJoints):
                 self.p.setCollisionFilterPair(self.robot, self.robot, i, j, 0)
 
-
-    def contactPoints(self):
+    def contactPoints(self) -> list[Tuple[str, float, float]]:
         """Gets all contact points and forces
         
         Returns:
@@ -388,7 +393,28 @@ class Simulation_base:
         for i, j in enumerate(self.joints):
             print(f'joint {i}: {j}')
 
-    def getJointInfo(self, jointName):
+    def getJointInfo(
+        self, jointName: str
+    ) -> Tuple[
+        int,
+        str,
+        int,
+        int,
+        int,
+        int,
+        int,
+        float,
+        float,
+        float,
+        float,
+        float,
+        float,
+        str,
+        List[float],
+        List[float],
+        List[float],
+        int,
+    ]:
         """Get informations about a joint
         
         Return: list -- 
@@ -413,27 +439,27 @@ class Simulation_base:
         """
         return self.p.getJointInfo(self.robot, self.jointIds[jointName])
 
-    def getJointQIndex(self, jointName):
+    def getJointQIndex(self, jointName: str):
         """Return the index by given a joint's name"""
         return self.getJointInfo(jointName)[3]
 
-    def getJointLowerLimit(self, jointName):
+    def getJointLowerLimit(self, jointName: str):
         """Return the lower limit by given a joint's name"""
         return self.getJointInfo(jointName)[8]
 
-    def getJointUpperLimit(self, jointName):
+    def getJointUpperLimit(self, jointName: str):
         """Return the upper limit by given a joint's name"""
         return self.getJointInfo(jointName)[9]
 
-    def getJointRange(self, jointName):
+    def getJointRange(self, jointName: str):
         """Return the range by given a joint's name"""
         return self.jointsInfos[jointName]['jointRange']  # TODO: find out this parameter
 
-    def getJointRestPos(self, jointName):
+    def getJointRestPos(self, jointName: str):
         """Return the rest position by given a joint's name"""
         return self.jointsInfos[jointName]['restPos']
 
-    def disableVelocityController(self, jointName):
+    def disableVelocityController(self, jointName: str) -> bool:
         """Disable the velocity controller of a joint by given a joint's name
         
         Keyword Arguments:
@@ -455,7 +481,7 @@ class Simulation_base:
         else:
             return False
 
-    def setJoints(self, jointPoses):
+    def setJoints(self, jointPoses: dict[str, float]):
         """Set some joints to a given position (for debugging uses)
         Arguments:
             jointPoses { jointName: targetPos }
@@ -480,7 +506,7 @@ class Simulation_base:
         self.currentLine = 0
         self.lastLinesDraw = 0
 
-    def getJointState(self, jointName):
+    def getJointState(self, jointName: str) -> Tuple[float, float, List[float], float]:
         """Get real time status about a joint
         Return:
             No  Parameter               Type             Description
@@ -491,7 +517,7 @@ class Simulation_base:
         """
         return self.p.getJointState(self.robot, self.jointIds[jointName])
 
-    def getJointPos(self, jointName, precision=19):
+    def getJointPos(self, jointName: str, precision: int = 19) -> float:
         """Get the revolute position of a joint
         Return:
             float -- the angle of the joint in radians
@@ -499,7 +525,7 @@ class Simulation_base:
         pos = self.getJointState(jointName)[0]
         return float(f"{pos:.{precision}f}")
 
-    def getJointPoses(self, jointNames, precision=19):
+    def getJointPoses(self, jointNames: str, precision: int = 19) -> dict[str, float]:
         """Get the real positions of a list of joints
         Return:
             {jointName: float} -- dictionary of joint name and the joint position
@@ -510,7 +536,7 @@ class Simulation_base:
             result[self.joints[i]] = poses[i]
         return result
 
-    def getJointVel(self, jointName, precision=19):
+    def getJointVel(self, jointName: str, precision: int = 19) -> float:
         """Get the real velocity of a joint
         Return:
             float -- the velocity of the joint
@@ -518,7 +544,7 @@ class Simulation_base:
         vel = self.getJointState(jointName)[1]
         return float(f"{vel:.{precision}f}")
 
-    def getJointVelArr(self, jointNames, precision=19):
+    def getJointVelArr(self, jointNames: str, precision: int = 19) -> dict[str, float]:
         """Get the real velocity of a list of joints
         Return:
             {jointName: float} -- dictionary of joint name and the joint velocity
@@ -531,7 +557,18 @@ class Simulation_base:
 
     ########## Robot dynamics and kinematics ##########
 
-    def getLinkState(self, jointName):
+    def getLinkState(
+        self, jointName: str
+    ) -> Tuple[
+        List[float],
+        List[float],
+        List[float],
+        List[float],
+        List[float],
+        List[float],
+        List[float],
+        List[float],
+    ]:
         """
         Return:
             No  Parameter                       Shape                   Descriptions
@@ -546,7 +583,22 @@ class Simulation_base:
         """
         return self.p.getLinkState(self.robot, self.jointIds[jointName])
 
-    def getLinkDynamicsInfo(self, linkName):
+    def getLinkDynamicsInfo(
+        self, linkName: str
+    ) -> Tuple[
+        float,
+        float,
+        List[float],
+        List[float],
+        List[float],
+        float,
+        float,
+        float,
+        float,
+        float,
+        int,
+        float,
+    ]:
         """
         Return:
             No  Parameter               Shape                   Description
@@ -565,14 +617,14 @@ class Simulation_base:
         """
         return self.p.getDynamicsInfo(bodyUniqueId=self.robot, linkIndex=self.jointIds[linkName])
 
-    def getLinkMass(self, linkName):
+    def getLinkMass(self, linkName: str) -> float:
         """Keyword Arguments:
             linkName (str) -- the name of the joint
         Return: the mass of the given link
         """
         return self.getLinkDynamicsInfo(linkName)[0]
 
-    def getLinkMassRecursive(self, linkName):
+    def getLinkMassRecursive(self, linkName: str) -> float:
         """Calculate and return the mass of the given link and its children
         Keyword Arguments:
             linkName (str) -- the name of the link
@@ -588,7 +640,7 @@ class Simulation_base:
 
         return mass
 
-    def getRobotMass(self):
+    def getRobotMass(self) -> float:
         """Returns the robot mass
         Returns:
             float -- the robot mass (kg)
@@ -606,7 +658,7 @@ class Simulation_base:
 
         return self.mass
 
-    def getCenterOfMassPosition(self):
+    def getCenterOfMassPosition(self) -> np.ndarray:
         """Returns center of mass of the robot
         Returns:
             pos -- (x, y, z) robot center of mass
