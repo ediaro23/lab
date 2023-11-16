@@ -55,6 +55,7 @@ def finalisecollisionsetup(robot):
     robot.collision_model.addAllCollisionPairs()    
     # Remove collision pairs per SRDF
     pin.removeCollisionPairs(robot.model, robot.collision_model, NEXTAGE_SRDF, False)
+    robot.collision_model.addCollisionPair(pin.CollisionPair(46,47))
     robot.collision_data = pin.GeometryData(robot.collision_model)
     robot.visual_data    = pin.GeometryData(robot.visual_model   )
         
