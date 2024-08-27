@@ -7,4 +7,5 @@ meshcat==0.3.2
 quadprog==0.1.11
 scipy==1.10.1
 tensorflow==2.13.0
+ndcurves
 
